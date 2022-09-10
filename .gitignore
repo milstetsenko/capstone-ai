@@ -1,0 +1,11 @@
+capstone-data-scraper/__pycache__/*
+capstone-data-scraper/venv
+capstone-data-scraper/.DS_Store
+capstone-data-scraper/.idea
+capstone-data-scraper/training-data
+capstone-data-scraper/photos
+.idea
+venv
+__pycache__
+
+
