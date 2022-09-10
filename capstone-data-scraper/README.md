@@ -16,3 +16,7 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
+
+I took the core logic for the image-scraping and locating 
+elements within the search page from [here](https://github.com/ohyicong/Google-Image-Scraper/blob/master/GoogleImageScraper.py)
+I have imporoved on it by adding a few neat things like headless mode and concurrency
