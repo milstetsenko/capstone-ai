@@ -17,8 +17,8 @@ log = logging.getLogger("scraper")
 
 class DataScraper:
     def __init__(self, image_path: str,
-            search_key: str = "", folder_key: str = "", number_of_images: int = 300,
-                 headless: bool = True, min_resolution: Tuple[int, int] = (300, 300),
+            search_key: str = "", folder_key: str = "", number_of_images: int = 5,
+                 headless: bool = True, min_resolution: Tuple[int, int] = (512, 512),
                  max_resolution: Tuple[int, int] = (1920, 1080)):
         image_path = os.path.join(image_path, folder_key)
         if not os.path.exists(image_path):
@@ -40,7 +40,8 @@ class DataScraper:
         self.driver = driver
         self.search_key = search_key
         self.folder_key = folder_key
-        self.number_of_images = number_of_images
+        # to account for wrong sizes and formats
+        self.number_of_images = number_of_images + 300
         self.image_path = image_path
         self.url = "https://www.google.com/search?q=%s&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
         self.min_resolution = min_resolution
