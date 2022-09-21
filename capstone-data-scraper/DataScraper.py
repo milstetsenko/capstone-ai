@@ -17,7 +17,7 @@ log = logging.getLogger("scraper")
 
 class DataScraper:
     def __init__(self, image_path: str,
-            search_key: str = "", folder_key: str = "", number_of_images: int = 5,
+            search_key: str = "", folder_key: str = "", number_of_images: int = 500,
                  headless: bool = True, min_resolution: Tuple[int, int] = (512, 512),
                  max_resolution: Tuple[int, int] = (1920, 1080)):
         image_path = os.path.join(image_path, folder_key)
