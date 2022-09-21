@@ -7,6 +7,9 @@ import requests
 import io
 from PIL import Image
 import logging.config
+import logging
+from typing import Tuple, List
+
 
 logging.config.fileConfig("logging.conf")
 log = logging.getLogger("scraper")
@@ -14,10 +17,10 @@ log = logging.getLogger("scraper")
 
 class DataScraper:
     def __init__(self, image_path: str,
-                 search_key: str = "", number_of_images: int = 300,
-                 headless: bool = True, min_resolution: tuple[int, int] = (300, 300),
-                 max_resolution: tuple[int, int] = (1920, 1080)):
-        image_path = os.path.join(image_path, search_key)
+            search_key: str = "", folder_key: str = "", number_of_images: int = 300,
+                 headless: bool = True, min_resolution: Tuple[int, int] = (300, 300),
+                 max_resolution: Tuple[int, int] = (1920, 1080)):
+        image_path = os.path.join(image_path, folder_key)
         if not os.path.exists(image_path):
             os.makedirs(image_path)
             log.info(f"Image path not found. Created a new folder {image_path}")
@@ -36,13 +39,14 @@ class DataScraper:
 
         self.driver = driver
         self.search_key = search_key
+        self.folder_key = folder_key
         self.number_of_images = number_of_images
         self.image_path = image_path
         self.url = "https://www.google.com/search?q=%s&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
         self.min_resolution = min_resolution
         self.max_resolution = max_resolution
         
-    def find_image_urls(self) -> list[str]:
+    def find_image_urls(self) -> List[str]:
         log.info("Scraping Google Images for links")
         image_urls = []
         count = 0
@@ -97,7 +101,7 @@ class DataScraper:
         log.info(f"Finished searching for links, found {count}")
         return image_urls
 
-    def save_images(self, image_urls: list[str]) -> None:
+    def save_images(self, image_urls: List[str]) -> None:
         log.info("Starting to download the images")
         for idx, image_url in enumerate(image_urls):
             try:
@@ -107,7 +111,7 @@ class DataScraper:
                 if image.status_code == 200:
                     with Image.open(io.BytesIO(image.content)) as image_from_web:
                         try:
-                            filename = f"{search_string}_{idx}.{image_from_web.format.lower()}"
+                            filename = f"{self.folder_key}_{idx}.{image_from_web.format.lower()}"
                             image_path = os.path.join(self.image_path, filename)
                             image_from_web.save(image_path)
                             log.info(f"Image saved at: {image_path}")

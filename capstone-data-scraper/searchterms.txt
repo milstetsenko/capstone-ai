@@ -1,2 +1,9 @@
-ukrainian embroidery
-ukrainian towels
+ukrainian embroidery, ukrainian_embroidery
+ukrainian towels, ukrainian_towels
+українська вишивка, ukrainian_vyshyvka
+українські узори, ukrainian_uzory
+ukrainian patterns, ukrainian_patterns
+українські візерунки для вишивання, ukrainian_uzory_for_embroiding
+українськи вишиванки узори, ukrainian_vyshyvanka_uzory
+узор вишиванка, pattern_vyshyvanka
+українські вишиті символи, ukrainian_embroided_symbols
