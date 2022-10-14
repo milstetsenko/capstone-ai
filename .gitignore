@@ -10,5 +10,5 @@ __pycache__
 capstone-rest/venv
 capstone-rest/.idea
 capstone-rest/__pycache__
-
+capstone-data-scraper/training_data_512/
 

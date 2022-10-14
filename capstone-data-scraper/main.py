@@ -1,16 +1,19 @@
 import os
-from os.path import isfile
 import sys
-
-from DataScraper import DataScraper
 import concurrent.futures
 import logging.config
 import logging
 from typing import List, Tuple
 from PIL import Image
+from DataScraper import DataScraper
+
+
 
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("scraper")
+
+IMAGE_MIN_SIZE = (512, 512)
+SAVE_FOLDER = f"training_data_{IMAGE_MIN_SIZE[0]}"
 
 
 def get_search_keys(path: str) -> List[List[str]]:
@@ -23,16 +26,19 @@ def get_search_keys(path: str) -> List[List[str]]:
 def scraper(search_params: List[str]):
     search_key, folder_key = search_params
     folder_key = folder_key.strip()
-    image_path = os.path.normpath(os.path.join(os.getcwd(), 'training-data'))
+    image_path = os.path.normpath(os.path.join(os.getcwd(), SAVE_FOLDER)) 
     data_scraper = DataScraper(image_path=image_path,
                                search_key=search_key,
-                               headless=True,
-                               folder_key=folder_key)
+                               headless=False,
+                               folder_key=folder_key,
+                               max_images=1000,
+                               delay = 0.5)
     image_links = data_scraper.find_image_urls()
-    data_scraper.save_images(image_links)
-    folder_path = os.path.normpath(os.path.join(os.getcwd(), "training-data", folder_key))
-    crop_images(folder_path, (512, 512))
-
+    logger.info(f"Found {len(image_links)} for {search_key}")
+    saved_percentage = data_scraper.save_images(image_links, verbose=True)
+    logger.info(f"Saved {saved_percentage}% from {len(image_links)} for search key {search_key}")
+    folder_path = os.path.normpath(os.path.join(image_path, folder_key))
+    crop_images(folder_path, IMAGE_MIN_SIZE)
 
 def crop_images(path: str, size: Tuple[int, int]) -> None:
     if not os.path.exists(path):
@@ -46,10 +52,12 @@ def crop_images(path: str, size: Tuple[int, int]) -> None:
         image = image.convert("RGB")
         image.save(filepath, image.format)
 
-
-if __name__ == "__main__":
+def main() -> None:
     search_keys = get_search_keys("searchterms.txt")
     logger.info(f"Found {len(search_keys)} search keys: {search_keys}")
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         executor.map(scraper, search_keys)
     sys.exit()
+
+if __name__ == "__main__":
+   main()
