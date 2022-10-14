@@ -75,17 +75,15 @@ class DataScraper:
 
                     if image.get_attribute('src') and 'http' in image.get_attribute('src'):
                         image_urls.add(image.get_attribute('src'))
-                        print(f"Found {len(image_urls)}")
 
         return image_urls
 
 
     # Return % of saved images 
     def save_images(self, image_urls: Set[str], image_format: str = "JPEG", verbose: bool = False) -> float:
-        print(f"Trying to save images to {self.image_path}")
         if not os.path.exists(self.image_path):
             os.makedirs(self.image_path)
-            print(f"Created {self.image_path}")
+            log.info(f"Created {self.image_path}")
         download_count = 0
         for i, url in enumerate(image_urls):
             try:
@@ -108,7 +106,7 @@ class DataScraper:
                     img.save(file, image_format)
                     download_count += 1
                 if verbose == True:
-                   print(f'The image: {file_pth} downloaded successfully at {curr_time}.')
+                   log.info(f'The image: {file_pth} downloaded successfully at {curr_time}.')
             except Exception as e:
-                print(f'Unable to download image from Google Photos due to\n: {str(e)}')
+                log.info(f'Unable to download image from Google Photos due to\n: {str(e)}')
         return 100*download_count/len(image_urls)
