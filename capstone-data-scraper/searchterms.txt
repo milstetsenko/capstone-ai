@@ -1,5 +1,4 @@
 ukranian ornaments, ukrainian_ornaments
-Стародавні візерунки, ancient_patterns
 старовинні українські узори, ancient_ukr_patterns
 старовинні вишиті узори, ancient_embroided_patterns
 вишиванка схеми, embtroidery_schematics
@@ -16,4 +15,3 @@ ukrainian patterns, ukrainian_patterns
 узор вишиванка, pattern_vyshyvanka
 українські вишиті символи, ukrainian_embroided_symbols
 ukrainian embroided patterns, ukrainian_embroided_patterns
-

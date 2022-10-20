@@ -12,7 +12,7 @@ from DataScraper import DataScraper
 logging.config.fileConfig("logging.conf")
 logger = logging.getLogger("scraper")
 
-IMAGE_MIN_SIZE = (512, 512)
+IMAGE_MIN_SIZE = (256, 256)
 SAVE_FOLDER = f"training_data_{IMAGE_MIN_SIZE[0]}"
 
 
@@ -29,10 +29,10 @@ def scraper(search_params: List[str]):
     image_path = os.path.normpath(os.path.join(os.getcwd(), SAVE_FOLDER)) 
     data_scraper = DataScraper(image_path=image_path,
                                search_key=search_key,
-                               headless=False,
+                               headless=True,
                                folder_key=folder_key,
-                               max_images=1000,
-                               delay = 0.5)
+                               max_images=700,
+                               delay = 0.7)
     image_links = data_scraper.find_image_urls()
     logger.info(f"Found {len(image_links)} for {search_key}")
     saved_percentage = data_scraper.save_images(image_links, verbose=True)
@@ -53,6 +53,8 @@ def crop_images(path: str, size: Tuple[int, int]) -> None:
         image.save(filepath, image.format)
 
 def main() -> None:
+    # Reset log file
+    open('log_file.txt', 'w').close()
     search_keys = get_search_keys("searchterms.txt")
     logger.info(f"Found {len(search_keys)} search keys: {search_keys}")
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:

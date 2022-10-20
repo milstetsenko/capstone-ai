@@ -19,7 +19,7 @@ log = logging.getLogger("scraper")
 class DataScraper:
     def __init__(self, image_path: str,
             search_key: str = "", folder_key: str = "", max_images: int = 500,
-            headless: bool = True, min_resolution: Tuple[int, int] = (256, 256), delay: float = 1):
+            headless: bool = True, min_resolution: Tuple[int, int] = (256, 256), delay: float = 1, miss_count: int = 10):
         image_path = os.path.join(image_path, folder_key)
         if not os.path.exists(image_path):
             os.makedirs(image_path)
@@ -45,26 +45,33 @@ class DataScraper:
         self.url = "https://www.google.com/search?q=%s&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
         self.min_resolution = min_resolution
         self.delay = delay
+        self.miss_count = 1000
 
     def scroll_down(self):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(self.delay)
 
     def find_image_urls(self) -> Set[str]:
+
         self.driver.get(self.url)
 
         image_urls = set()
         skips = 0
+        scroll_miss = 100
         while len(image_urls) + skips < self.max_images:
-            self.scroll_down()
+            cur_time = time.time()
             thumbnails = self.driver.find_elements(By.CLASS_NAME, "Q4LuWd")
-
             for img in thumbnails[len(image_urls) + skips:self.max_images]:
+                missed_count = 0
                 try:
                     img.click()
                     time.sleep(self.delay)
                 except:
-                    continue
+                    log.info(f"Missed element {missed_count} times")
+                    missed_count += 1
+                    if missed_count > self.miss_count:
+                        log.error("Missed element 1000 times, exiting")
+                        return image_urls
 
                 images = self.driver.find_elements(By.CLASS_NAME, "n3VNCb")
                 for image in images:
@@ -72,12 +79,32 @@ class DataScraper:
                         self.max_images += 1
                         skips += 1
                         break
-
                     if image.get_attribute('src') and 'http' in image.get_attribute('src'):
                         image_urls.add(image.get_attribute('src'))
+                log.info(f"Found {len(image_urls)} for {self.search_key}")
+
+            try:
+                 element = self.driver.find_element_by_class_name("mye4qd")
+                 element.click()
+                 log.info("Loading next page")
+                 time.sleep(0.5)
+                 
+            except Exception as e:
+                 log.error(f"Trying to scroll down didn't work , fall back on try 2 {e}")
+                 try:
+                    self.scroll_down()
+                    scroll_miss -= 1
+                    log.info(f'Remaining tries {scroll_miss}')
+                    if not scroll_miss:
+                        raise Exception("Reached the end of the page, start downloading images")
+                 except Exception as e:
+                    log.error(f"Cannot scroll down, exiting: {e}")
+                    return image_urls
+                 time.sleep(0.5)
+            log.info(f"Found {len(image_urls)} for {self.search_key}")
+
 
         return image_urls
-
 
     # Return % of saved images 
     def save_images(self, image_urls: Set[str], image_format: str = "JPEG", verbose: bool = False) -> float:
@@ -90,7 +117,7 @@ class DataScraper:
                 time = dt.now()
                 curr_time = time.strftime('%H:%M:%S')
                 #Content of the image will be a url
-                img_content = requests.get(url).content
+                img_content = requests.get(url=url, timeout=3).content
                 #Get the bytes IO of the image
                 img_file = io.BytesIO(img_content)
                 #Stores the file in memory and convert to image file using Pillow
