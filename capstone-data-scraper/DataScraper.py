@@ -19,7 +19,7 @@ log = logging.getLogger("scraper")
 class DataScraper:
     def __init__(self, image_path: str,
             search_key: str = "", folder_key: str = "", max_images: int = 500,
-            headless: bool = True, min_resolution: Tuple[int, int] = (256, 256), delay: float = 1, miss_count: int = 10):
+            headless: bool = True, min_resolution: Tuple[int, int] = (256, 256), delay: float = 1, miss_count: int = 1000):
         image_path = os.path.join(image_path, folder_key)
         if not os.path.exists(image_path):
             os.makedirs(image_path)
@@ -45,7 +45,8 @@ class DataScraper:
         self.url = "https://www.google.com/search?q=%s&source=lnms&tbm=isch&sa=X&ved=2ahUKEwie44_AnqLpAhUhBWMBHUFGD90Q_AUoAXoECBUQAw&biw=1920&bih=947"%(search_key)
         self.min_resolution = min_resolution
         self.delay = delay
-        self.miss_count = 1000
+        self.miss_count = miss_count
+
 
     def scroll_down(self):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -59,7 +60,6 @@ class DataScraper:
         skips = 0
         scroll_miss = 100
         while len(image_urls) + skips < self.max_images:
-            cur_time = time.time()
             thumbnails = self.driver.find_elements(By.CLASS_NAME, "Q4LuWd")
             for img in thumbnails[len(image_urls) + skips:self.max_images]:
                 missed_count = 0
